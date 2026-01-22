@@ -185,11 +185,11 @@ const EmployerDashboard = () => {
                                     <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                                         <div className="flex items-center space-x-3">
                                             <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
-                                                {app.applicantName?.charAt(0) || 'A'}
+                                                {app.jobSeeker?.name?.charAt(0) || 'A'}
                                             </div>
                                             <div>
-                                                <p className="font-medium text-gray-900">{app.applicantName}</p>
-                                                <p className="text-sm text-gray-600">{app.jobTitle}</p>
+                                                <p className="font-medium text-gray-900">{app.jobSeeker?.name || 'Unknown Applicant'}</p>
+                                                <p className="text-sm text-gray-600">{app.job?.title || 'Unknown Position'}</p>
                                             </div>
                                         </div>
                                         <span className="badge bg-blue-100 text-blue-700">New</span>

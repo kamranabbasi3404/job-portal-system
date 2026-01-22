@@ -23,6 +23,7 @@ import Applications from './pages/jobseeker/Applications';
 // Employer Pages
 import EmployerDashboard from './pages/employer/Dashboard';
 import PostJob from './pages/employer/PostJob';
+import EditJob from './pages/employer/EditJob';
 import ManageJobs from './pages/employer/ManageJobs';
 import EmployerApplications from './pages/employer/Applications';
 
@@ -86,6 +87,14 @@ function AppContent() {
             element={
               <ProtectedRoute user={user} requiredRole="employer">
                 <PostJob />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employer/edit-job/:id"
+            element={
+              <ProtectedRoute user={user} requiredRole="employer">
+                <EditJob />
               </ProtectedRoute>
             }
           />

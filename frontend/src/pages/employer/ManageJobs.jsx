@@ -130,10 +130,13 @@ const ManageJobs = () => {
                                         <Eye className="w-4 h-4" />
                                         <span>View</span>
                                     </Link>
-                                    <button className="btn-secondary text-sm flex items-center space-x-1">
+                                    <Link
+                                        to={`/employer/edit-job/${job._id || job.id}`}
+                                        className="btn-secondary text-sm flex items-center space-x-1"
+                                    >
                                         <Edit className="w-4 h-4" />
                                         <span>Edit</span>
-                                    </button>
+                                    </Link>
                                     <button
                                         onClick={() => toggleStatus(job._id || job.id, job.status)}
                                         className="btn-outline text-sm"
