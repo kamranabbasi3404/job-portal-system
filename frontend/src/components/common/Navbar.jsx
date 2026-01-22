@@ -1,12 +1,26 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Briefcase, User, LogOut, Home, FileText, Bell, Building2 } from 'lucide-react';
+import ConfirmationModal from './ConfirmationModal';
 
 const Navbar = ({ user, onLogout }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
 
     const isActive = (path) => location.pathname === path;
+
+    const handleLogout = () => {
+        setShowLogoutModal(true);
+    };
+
+    const confirmLogout = () => {
+        onLogout(navigate);
+        setShowLogoutModal(false);
+        setIsMenuOpen(false);
+    };
+
 
     const navLinks = user ? (
         user.role === 'jobseeker' ? [
@@ -58,7 +72,7 @@ const Navbar = ({ user, onLogout }) => {
                                     );
                                 })}
                                 <button
-                                    onClick={onLogout}
+                                    onClick={handleLogout}
                                     className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 ml-2"
                                 >
                                     <LogOut className="w-4 h-4" />
@@ -123,10 +137,7 @@ const Navbar = ({ user, onLogout }) => {
                                     );
                                 })}
                                 <button
-                                    onClick={() => {
-                                        onLogout();
-                                        setIsMenuOpen(false);
-                                    }}
+                                    onClick={() => setShowLogoutModal(true)}
                                     className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
                                 >
                                     <LogOut className="w-5 h-5" />
@@ -175,6 +186,14 @@ const Navbar = ({ user, onLogout }) => {
                     </div>
                 </div>
             )}
+
+            <ConfirmationModal
+                isOpen={showLogoutModal}
+                onClose={() => setShowLogoutModal(false)}
+                onConfirm={confirmLogout}
+                title="Confirm Logout"
+                message="Are you sure you want to logout? You will need to login again to access your account."
+            />
         </nav>
     );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Edit2, Plus, Trash2, Briefcase, GraduationCap, Code, FileText, Save, X } from 'lucide-react';
+import { Edit2, Plus, Trash2, Briefcase, GraduationCap, Code, FileText, Save, X, Camera } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import Loader from '../../components/common/Loader';
@@ -10,6 +10,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState({});
     const [formData, setFormData] = useState({});
+    const [profilePicturePreview, setProfilePicturePreview] = useState(null);
 
     useEffect(() => {
         fetchProfile();
@@ -107,6 +108,48 @@ const Profile = () => {
         setFormData({ ...formData, education: newEdu });
     };
 
+    const handleProfilePictureUpload = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Only image files (JPG, PNG, GIF, WEBP) are allowed');
+                return;
+            }
+
+            // Validate file size (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size must be less than 2MB');
+                return;
+            }
+
+            // Create preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfilePicturePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+
+            // Upload to backend
+            const formData = new FormData();
+            formData.append('profilePicture', file);
+
+            try {
+                const response = await api.post('/api/profile/profile-picture', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                setProfile({ ...profile, profilePicture: response.data.profilePicture });
+                alert('Profile picture uploaded successfully!');
+            } catch (error) {
+                console.error('Error uploading profile picture:', error);
+                alert(error.response?.data?.message || 'Failed to upload profile picture');
+                setProfilePicturePreview(null);
+            }
+        }
+    };
+
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -121,8 +164,27 @@ const Profile = () => {
                 {/* Header */}
                 <div className="card mb-6">
                     <div className="flex items-center space-x-4">
-                        <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
-                            {user?.name?.charAt(0).toUpperCase()}
+                        <div className="relative group">
+                            {profilePicturePreview || profile?.profilePicture ? (
+                                <img
+                                    src={profilePicturePreview || `http://localhost:5000${profile.profilePicture}`}
+                                    alt={user?.name}
+                                    className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
+                                />
+                            ) : (
+                                <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                                    {user?.name?.charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                            <label className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                <Camera className="w-6 h-6 text-white" />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleProfilePictureUpload}
+                                    className="hidden"
+                                />
+                            </label>
                         </div>
                         <div className="flex-1">
                             <h1 className="text-3xl font-bold text-gray-900">{user?.name}</h1>

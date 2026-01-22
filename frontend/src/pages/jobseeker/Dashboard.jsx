@@ -130,14 +130,14 @@ const JobSeekerDashboard = () => {
                                 {recentApplications.map((app, index) => (
                                     <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-primary-200 transition-colors">
                                         <div className="flex items-start justify-between mb-2">
-                                            <h3 className="font-semibold text-gray-900">{app.jobTitle}</h3>
+                                            <h3 className="font-semibold text-gray-900">{app.job?.title || 'Unknown Position'}</h3>
                                             <span className={`badge ${getStatusColor(app.status)}`}>
                                                 {app.status}
                                             </span>
                                         </div>
-                                        <p className="text-sm text-gray-600">{app.company}</p>
+                                        <p className="text-sm text-gray-600">{app.job?.company || 'Unknown Company'}</p>
                                         <p className="text-xs text-gray-500 mt-2">
-                                            Applied {new Date(app.appliedDate).toLocaleDateString()}
+                                            Applied {new Date(app.createdAt).toLocaleDateString()}
                                         </p>
                                     </div>
                                 ))}

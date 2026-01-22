@@ -65,11 +65,16 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
+    const logout = (navigate) => {
+        // Clear auth state first
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         delete api.defaults.headers.common['Authorization'];
         setUser(null);
+
+        // Use window.location for immediate redirect to home page
+        // This bypasses React Router and prevents ProtectedRoute from intercepting
+        window.location.href = '/';
     };
 
     const updateUser = (userData) => {

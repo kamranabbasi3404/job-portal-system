@@ -95,6 +95,39 @@ export const uploadResume = async (req, res) => {
     }
 };
 
+// @desc    Upload profile picture
+// @route   POST /api/profile/profile-picture
+// @access  Private
+export const uploadProfilePicture = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        let profile = await Profile.findOne({ user: req.user.id });
+
+        if (!profile) {
+            profile = await Profile.create({ user: req.user.id });
+        }
+
+        // Delete old profile picture if exists
+        if (profile.profilePicture) {
+            const oldPath = path.join(process.cwd(), 'uploads', 'profile-pictures', path.basename(profile.profilePicture));
+            if (fs.existsSync(oldPath)) {
+                fs.unlinkSync(oldPath);
+            }
+        }
+
+        // Save new profile picture path
+        profile.profilePicture = `/uploads/profile-pictures/${req.file.filename}`;
+        await profile.save();
+
+        res.json({ profilePicture: profile.profilePicture });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Get user profile by userId (for employers viewing applicants)
 // @route   GET /api/profile/user/:userId
 // @access  Private/Employer

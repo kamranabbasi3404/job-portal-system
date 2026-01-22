@@ -40,6 +40,10 @@ const profileSchema = new mongoose.Schema({
         type: String, // URL to resume file
         default: ''
     },
+    profilePicture: {
+        type: String, // URL to profile picture
+        default: ''
+    },
     phone: String,
     location: String,
     website: String,
