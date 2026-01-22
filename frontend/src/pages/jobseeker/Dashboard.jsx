@@ -25,16 +25,17 @@ const JobSeekerDashboard = () => {
         try {
             setLoading(true);
             // Fetch dashboard data from API
-            const [applicationsRes, jobsRes] = await Promise.all([
+            const [applicationsRes, jobsRes, savedJobsRes] = await Promise.all([
                 api.get('/api/applications/my-applications').catch(() => ({ data: [] })),
-                api.get('/api/jobs').catch(() => ({ data: [] }))
+                api.get('/api/jobs').catch(() => ({ data: [] })),
+                api.get('/api/saved-jobs').catch(() => ({ data: [] }))
             ]);
 
             setRecentApplications(applicationsRes.data.slice(0, 3));
             setRecommendedJobs(jobsRes.data.slice(0, 3));
             setStats({
                 applications: applicationsRes.data.length,
-                saved: 0,
+                saved: savedJobsRes.data.length,
                 profileViews: 0
             });
         } catch (error) {
@@ -57,7 +58,7 @@ const JobSeekerDashboard = () => {
             label: 'Saved Jobs',
             value: stats.saved,
             color: 'bg-purple-100 text-purple-600',
-            link: '/jobs'
+            link: '/jobseeker/saved-jobs'
         },
         {
             icon: TrendingUp,

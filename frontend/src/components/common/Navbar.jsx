@@ -47,7 +47,7 @@ const Navbar = ({ user, onLogout }) => {
                             <Briefcase className="w-6 h-6 text-white" />
                         </div>
                         <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-                            JobPortal
+                            HireFlow
                         </span>
                     </Link>
 

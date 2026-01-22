@@ -9,7 +9,7 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {/* About Section */}
                     <div>
-                        <h3 className="text-white text-lg font-bold mb-4">JobPortal</h3>
+                        <h3 className="text-white text-lg font-bold mb-4">HireFlow</h3>
                         <p className="text-sm text-gray-400 mb-4">
                             Connect talented professionals with amazing opportunities. Your dream job is just a click away.
                         </p>
@@ -65,7 +65,7 @@ const Footer = () => {
                             </li>
                             <li className="flex items-center space-x-3">
                                 <Mail className="w-4 h-4 flex-shrink-0 text-primary-400" />
-                                <span>contact@jobportal.com</span>
+                                <span>contact@hireflow.com</span>
                             </li>
                         </ul>
                     </div>
@@ -73,7 +73,7 @@ const Footer = () => {
 
                 {/* Bottom Bar */}
                 <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center text-gray-400">
-                    <p>&copy; {new Date().getFullYear()} JobPortal. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} HireFlow. All rights reserved.</p>
                 </div>
             </div>
         </footer>

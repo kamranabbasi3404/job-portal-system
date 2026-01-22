@@ -186,7 +186,7 @@ const Login = () => {
                             />
                         </div>
                         <p className="mt-3 text-center text-xs text-gray-500">
-                            * Only for existing Job Portal users
+                            * Only for existing HireFlow users
                         </p>
                     </div>
 

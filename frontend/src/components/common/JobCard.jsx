@@ -1,8 +1,49 @@
-import React from 'react';
-import { MapPin, Briefcase, Clock, DollarSign, Building2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { MapPin, Briefcase, Clock, DollarSign, Building2, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 
-const JobCard = ({ job }) => {
+const JobCard = ({ job, isSaved: initialSaved = false, onSaveToggle }) => {
+    const { user } = useAuth();
+    const [isSaved, setIsSaved] = useState(initialSaved);
+    const [saving, setSaving] = useState(false);
+
+    const handleSaveToggle = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!user) {
+            alert('Please login to save jobs');
+            return;
+        }
+
+        if (user.role !== 'jobseeker') {
+            return;
+        }
+
+        setSaving(true);
+        try {
+            if (isSaved) {
+                await api.delete(`/api/saved-jobs/${job._id}`);
+                setIsSaved(false);
+            } else {
+                await api.post(`/api/saved-jobs/${job._id}`);
+                setIsSaved(true);
+            }
+
+            // Notify parent component if callback provided
+            if (onSaveToggle) {
+                onSaveToggle(job._id, !isSaved);
+            }
+        } catch (error) {
+            console.error('Error toggling save:', error);
+            alert(error.response?.data?.message || 'Failed to save job');
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const getJobTypeBadgeColor = (type) => {
         switch (type?.toLowerCase()) {
             case 'full-time':
@@ -37,7 +78,24 @@ const JobCard = ({ job }) => {
     };
 
     return (
-        <div className="card group hover:border-primary-200 border border-transparent cursor-pointer">
+        <div className="card group hover:border-primary-200 border border-transparent cursor-pointer relative">
+            {/* Bookmark Button - Only show for job seekers */}
+            {user && user.role === 'jobseeker' && (
+                <button
+                    onClick={handleSaveToggle}
+                    disabled={saving}
+                    className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors z-10"
+                    title={isSaved ? 'Unsave job' : 'Save job'}
+                >
+                    <Heart
+                        className={`w-6 h-6 transition-all ${isSaved
+                                ? 'fill-red-500 text-red-500'
+                                : 'text-gray-400 hover:text-red-500'
+                            } ${saving ? 'opacity-50' : ''}`}
+                    />
+                </button>
+            )}
+
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start space-x-4">
                     <div className="w-14 h-14 bg-gradient-to-br from-primary-400 to-secondary-500 rounded-lg flex items-center justify-center flex-shrink-0">

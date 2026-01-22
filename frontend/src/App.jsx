@@ -19,6 +19,7 @@ import Companies from './pages/Companies';
 import JobSeekerDashboard from './pages/jobseeker/Dashboard';
 import JobSeekerProfile from './pages/jobseeker/Profile';
 import Applications from './pages/jobseeker/Applications';
+import SavedJobs from './pages/jobseeker/SavedJobs';
 
 // Employer Pages
 import EmployerDashboard from './pages/employer/Dashboard';
@@ -69,6 +70,14 @@ function AppContent() {
             element={
               <ProtectedRoute user={user} requiredRole="jobseeker">
                 <Applications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/jobseeker/saved-jobs"
+            element={
+              <ProtectedRoute user={user} requiredRole="jobseeker">
+                <SavedJobs />
               </ProtectedRoute>
             }
           />

@@ -1,7 +1,7 @@
 {
   "name": "job-portal-backend",
   "version": "1.0.0",
-  "description": "Backend API for Job Portal",
+  "description": "Backend API for HireFlow",
   "main": "server.js",
   "type": "module",
   "scripts": {
