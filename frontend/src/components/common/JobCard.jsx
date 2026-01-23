@@ -79,23 +79,6 @@ const JobCard = ({ job, isSaved: initialSaved = false, onSaveToggle }) => {
 
     return (
         <div className="card group hover:border-primary-200 border border-transparent cursor-pointer relative">
-            {/* Bookmark Button - Only show for job seekers */}
-            {user && user.role === 'jobseeker' && (
-                <button
-                    onClick={handleSaveToggle}
-                    disabled={saving}
-                    className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors z-10"
-                    title={isSaved ? 'Unsave job' : 'Save job'}
-                >
-                    <Heart
-                        className={`w-6 h-6 transition-all ${isSaved
-                                ? 'fill-red-500 text-red-500'
-                                : 'text-gray-400 hover:text-red-500'
-                            } ${saving ? 'opacity-50' : ''}`}
-                    />
-                </button>
-            )}
-
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start space-x-4">
                     <div className="w-14 h-14 bg-gradient-to-br from-primary-400 to-secondary-500 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -110,7 +93,7 @@ const JobCard = ({ job, isSaved: initialSaved = false, onSaveToggle }) => {
                         <p className="text-gray-600 font-medium">{job.company || 'Company Name'}</p>
                     </div>
                 </div>
-                <span className={`badge ${getJobTypeBadgeColor(job.type)}`}>
+                <span className={`badge ${getJobTypeBadgeColor(job.type)} whitespace-nowrap`}>
                     {job.type}
                 </span>
             </div>
@@ -134,7 +117,7 @@ const JobCard = ({ job, isSaved: initialSaved = false, onSaveToggle }) => {
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                     <Clock className="w-4 h-4 text-gray-400" />
-                    <span>{getTimeAgo(job.postedDate)}</span>
+                    <span>{getTimeAgo(job.createdAt)}</span>
                 </div>
             </div>
 

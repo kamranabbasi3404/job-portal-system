@@ -129,7 +129,7 @@ const JobDetails = () => {
                         </div>
                         <div className="flex items-center space-x-2 text-gray-600">
                             <Clock className="w-5 h-5 text-gray-400" />
-                            <span>Posted {new Date(job.postedDate).toLocaleDateString()}</span>
+                            <span>Posted {new Date(job.createdAt).toLocaleDateString()}</span>
                         </div>
                     </div>
 

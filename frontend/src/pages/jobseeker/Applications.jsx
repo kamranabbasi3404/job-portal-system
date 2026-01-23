@@ -74,8 +74,8 @@ const Applications = () => {
                                 key={status}
                                 onClick={() => setFilter(status)}
                                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${filter === status
-                                        ? 'bg-primary-600 text-white'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    ? 'bg-primary-600 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                     }`}
                             >
                                 {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -104,8 +104,8 @@ const Applications = () => {
                             <div key={app._id || app.id} className="card hover:shadow-lg transition-shadow">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex-1">
-                                        <h3 className="text-xl font-bold text-gray-900 mb-1">{app.jobTitle}</h3>
-                                        <p className="text-gray-600 font-medium">{app.company}</p>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-1">{app.job?.title || 'Job Title'}</h3>
+                                        <p className="text-gray-600 font-medium">{app.job?.company || 'Company'}</p>
                                     </div>
                                     <span className={`badge ${getStatusColor(app.status)} flex items-center space-x-1`}>
                                         {getStatusIcon(app.status)}
@@ -115,13 +115,13 @@ const Applications = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
                                     <div>
-                                        <span className="font-medium">Applied:</span> {new Date(app.appliedDate).toLocaleDateString()}
+                                        <span className="font-medium">Applied:</span> {new Date(app.createdAt).toLocaleDateString()}
                                     </div>
                                     <div>
-                                        <span className="font-medium">Location:</span> {app.location}
+                                        <span className="font-medium">Location:</span> {app.job?.location || 'N/A'}
                                     </div>
                                     <div>
-                                        <span className="font-medium">Type:</span> {app.jobType}
+                                        <span className="font-medium">Type:</span> {app.job?.type || 'N/A'}
                                     </div>
                                 </div>
 
