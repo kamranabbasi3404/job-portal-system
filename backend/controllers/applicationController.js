@@ -134,3 +134,127 @@ export const deleteApplication = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// @desc    Shortlist an application
+// @route   PATCH /api/applications/:id/shortlist
+// @access  Private/Employer
+export const shortlistApplication = async (req, res) => {
+    try {
+        const application = await Application.findById(req.params.id).populate('job');
+
+        if (!application) {
+            return res.status(404).json({ message: 'Application not found' });
+        }
+
+        // Check if employer owns the job
+        if (application.job.employer.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
+        application.status = 'shortlisted';
+        application.shortlistNotes = req.body.shortlistNotes || '';
+        await application.save();
+
+        const updatedApplication = await Application.findById(application._id)
+            .populate('job', 'title company')
+            .populate('jobSeeker', 'name email phone');
+
+        res.json(updatedApplication);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Schedule interview for an application
+// @route   PATCH /api/applications/:id/schedule-interview
+// @access  Private/Employer
+export const scheduleInterview = async (req, res) => {
+    try {
+        const application = await Application.findById(req.params.id).populate('job');
+
+        if (!application) {
+            return res.status(404).json({ message: 'Application not found' });
+        }
+
+        // Check if employer owns the job
+        if (application.job.employer.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
+        // Validate that application is shortlisted
+        if (application.status !== 'shortlisted') {
+            return res.status(400).json({ message: 'Application must be shortlisted before scheduling interview' });
+        }
+
+        const { type, dateTime, location, meetingLink } = req.body;
+
+        // Validate required fields
+        if (!type || !dateTime) {
+            return res.status(400).json({ message: 'Interview type and date/time are required' });
+        }
+
+        if (type === 'on-site' && !location) {
+            return res.status(400).json({ message: 'Location is required for on-site interviews' });
+        }
+
+        if (type === 'online' && !meetingLink) {
+            return res.status(400).json({ message: 'Meeting link is required for online interviews' });
+        }
+
+        application.status = 'interview_scheduled';
+        application.interviewDetails = {
+            type,
+            dateTime: new Date(dateTime),
+            location: type === 'on-site' ? location : undefined,
+            meetingLink: type === 'online' ? meetingLink : undefined
+        };
+        await application.save();
+
+        const updatedApplication = await Application.findById(application._id)
+            .populate('job', 'title company')
+            .populate('jobSeeker', 'name email phone');
+
+        res.json(updatedApplication);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Make final hiring decision
+// @route   PATCH /api/applications/:id/final-decision
+// @access  Private/Employer
+export const makeFinalDecision = async (req, res) => {
+    try {
+        const application = await Application.findById(req.params.id).populate('job');
+
+        if (!application) {
+            return res.status(404).json({ message: 'Application not found' });
+        }
+
+        // Check if employer owns the job
+        if (application.job.employer.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
+        const { decision, rejectionReason } = req.body;
+
+        // Validate decision
+        if (!decision || !['selected', 'rejected'].includes(decision)) {
+            return res.status(400).json({ message: 'Decision must be either "selected" or "rejected"' });
+        }
+
+        application.status = decision;
+        if (decision === 'rejected' && rejectionReason) {
+            application.rejectionReason = rejectionReason;
+        }
+        await application.save();
+
+        const updatedApplication = await Application.findById(application._id)
+            .populate('job', 'title company')
+            .populate('jobSeeker', 'name email phone');
+
+        res.json(updatedApplication);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

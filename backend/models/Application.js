@@ -19,12 +19,33 @@ const applicationSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'reviewing', 'accepted', 'rejected'],
+        enum: ['pending', 'reviewing', 'shortlisted', 'interview_scheduled', 'selected', 'rejected'],
         default: 'pending'
     },
     appliedDate: {
         type: Date,
         default: Date.now
+    },
+    shortlistNotes: {
+        type: String
+    },
+    interviewDetails: {
+        type: {
+            type: String,
+            enum: ['online', 'on-site']
+        },
+        dateTime: {
+            type: Date
+        },
+        location: {
+            type: String
+        },
+        meetingLink: {
+            type: String
+        }
+    },
+    rejectionReason: {
+        type: String
     }
 }, {
     timestamps: true
