@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import Job from '../models/Job.js';
+import CompanyProfile from '../models/CompanyProfile.js';
 
 // @desc    Get all companies (employers)
 // @route   GET /api/companies
@@ -9,17 +10,12 @@ export const getCompanies = async (req, res) => {
         const { search } = req.query;
         let query = { role: 'employer' };
 
-        // Search by company name
-        if (search) {
-            query.name = { $regex: search, $options: 'i' };
-        }
-
         // Get all employers
         const companies = await User.find(query)
             .select('name email phone createdAt')
             .sort({ createdAt: -1 });
 
-        // Get job counts for each company
+        // Get job counts and profile data for each company
         const companiesWithJobs = await Promise.all(
             companies.map(async (company) => {
                 const totalJobs = await Job.countDocuments({ employer: company._id });
@@ -28,19 +24,36 @@ export const getCompanies = async (req, res) => {
                     status: 'active'
                 });
 
-                return {
+                // Fetch company profile
+                const profile = await CompanyProfile.findOne({ user: company._id });
+
+                const companyData = {
                     _id: company._id,
-                    name: company.name,
-                    email: company.email,
-                    phone: company.phone,
+                    name: profile?.companyName || company.name,
+                    email: profile?.email || company.email,
+                    phone: profile?.phone || company.phone,
                     memberSince: company.createdAt,
                     totalJobs,
-                    activeJobs
+                    activeJobs,
+                    profilePicture: profile?.profilePicture,
+                    industry: profile?.industry,
+                    location: profile?.location,
+                    about: profile?.about
                 };
+
+                return companyData;
             })
         );
 
-        res.json(companiesWithJobs);
+        // Apply search filter after fetching profiles
+        let filteredCompanies = companiesWithJobs;
+        if (search) {
+            filteredCompanies = companiesWithJobs.filter(company =>
+                company.name.toLowerCase().includes(search.toLowerCase())
+            );
+        }
+
+        res.json(filteredCompanies);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -58,16 +71,31 @@ export const getCompanyById = async (req, res) => {
             return res.status(404).json({ message: 'Company not found' });
         }
 
+        // Fetch company profile
+        const profile = await CompanyProfile.findOne({ user: company._id });
+
         // Get company's jobs
         const jobs = await Job.find({ employer: company._id, status: 'active' })
             .sort({ createdAt: -1 });
 
         res.json({
             _id: company._id,
-            name: company.name,
-            email: company.email,
-            phone: company.phone,
+            name: profile?.companyName || company.name,
+            email: profile?.email || company.email,
+            phone: profile?.phone || company.phone,
             memberSince: company.createdAt,
+            profilePicture: profile?.profilePicture,
+            industry: profile?.industry,
+            location: profile?.location,
+            about: profile?.about,
+            description: profile?.description,
+            website: profile?.website,
+            companySize: profile?.companySize,
+            foundedYear: profile?.foundedYear,
+            mission: profile?.mission,
+            vision: profile?.vision,
+            culture: profile?.culture,
+            benefits: profile?.benefits,
             jobs
         });
     } catch (error) {

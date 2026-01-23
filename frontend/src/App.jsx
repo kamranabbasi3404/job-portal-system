@@ -27,6 +27,7 @@ import PostJob from './pages/employer/PostJob';
 import EditJob from './pages/employer/EditJob';
 import ManageJobs from './pages/employer/ManageJobs';
 import EmployerApplications from './pages/employer/Applications';
+import EmployerProfile from './pages/employer/Profile';
 
 function AppContent() {
   const { user, logout, loading } = useAuth();
@@ -120,6 +121,14 @@ function AppContent() {
             element={
               <ProtectedRoute user={user} requiredRole="employer">
                 <EmployerApplications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employer/profile"
+            element={
+              <ProtectedRoute user={user} requiredRole="employer">
+                <EmployerProfile />
               </ProtectedRoute>
             }
           />

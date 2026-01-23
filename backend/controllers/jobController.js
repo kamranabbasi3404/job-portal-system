@@ -1,5 +1,6 @@
 import Job from '../models/Job.js';
 import Application from '../models/Application.js';
+import CompanyProfile from '../models/CompanyProfile.js';
 
 // @desc    Get all jobs
 // @route   GET /api/jobs
@@ -23,7 +24,18 @@ export const getJobs = async (req, res) => {
         }
 
         const jobs = await Job.find(query).populate('employer', 'name email').sort({ createdAt: -1 });
-        res.json(jobs);
+
+        // Update company names from profiles
+        const jobsWithUpdatedCompanyNames = await Promise.all(
+            jobs.map(async (job) => {
+                const profile = await CompanyProfile.findOne({ user: job.employer._id });
+                const jobObj = job.toObject();
+                jobObj.company = profile?.companyName || jobObj.company;
+                return jobObj;
+            })
+        );
+
+        res.json(jobsWithUpdatedCompanyNames);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -40,7 +52,13 @@ export const getJobById = async (req, res) => {
             // Increment views
             job.views += 1;
             await job.save();
-            res.json(job);
+
+            // Fetch and update company name from profile
+            const profile = await CompanyProfile.findOne({ user: job.employer._id });
+            const jobObj = job.toObject();
+            jobObj.company = profile?.companyName || jobObj.company;
+
+            res.json(jobObj);
         } else {
             res.status(404).json({ message: 'Job not found' });
         }

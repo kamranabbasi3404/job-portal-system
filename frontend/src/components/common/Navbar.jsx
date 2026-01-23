@@ -34,6 +34,7 @@ const Navbar = ({ user, onLogout }) => {
             { to: '/employer/post-job', icon: Briefcase, label: 'Post Job' },
             { to: '/employer/manage-jobs', icon: FileText, label: 'Manage Jobs' },
             { to: '/employer/applications', icon: Bell, label: 'Applications' },
+            { to: '/employer/profile', icon: User, label: 'Profile' },
         ]
     ) : [];
 

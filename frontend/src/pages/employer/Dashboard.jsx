@@ -15,6 +15,7 @@ const EmployerDashboard = () => {
     });
     const [recentJobs, setRecentJobs] = useState([]);
     const [recentApplications, setRecentApplications] = useState([]);
+    const [companyProfile, setCompanyProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -25,13 +26,15 @@ const EmployerDashboard = () => {
         try {
             setLoading(true);
             // Fetch employer dashboard data
-            const [jobsRes, appsRes] = await Promise.all([
+            const [jobsRes, appsRes, profileRes] = await Promise.all([
                 api.get('/api/jobs/my-jobs').catch(() => ({ data: getSampleJobs() })),
-                api.get('/api/applications/employer').catch(() => ({ data: [] }))
+                api.get('/api/applications/employer').catch(() => ({ data: [] })),
+                api.get('/api/company-profile/me').catch(() => ({ data: null }))
             ]);
 
             setRecentJobs(jobsRes.data.slice(0, 3));
             setRecentApplications(appsRes.data.slice(0, 5));
+            setCompanyProfile(profileRes.data);
             setStats({
                 activeJobs: jobsRes.data.filter(j => j.status === 'active').length,
                 totalApplications: appsRes.data.length,
@@ -92,7 +95,7 @@ const EmployerDashboard = () => {
                 <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                            Welcome, {user?.name || 'Company'}!
+                            Welcome, {companyProfile?.companyName || user?.name || 'Company'}!
                         </h1>
                         <p className="text-gray-600">Manage your job postings and applications</p>
                     </div>

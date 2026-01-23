@@ -8,6 +8,7 @@ import applicationRoutes from './routes/applications.js';
 import profileRoutes from './routes/profile.js';
 import companyRoutes from './routes/companies.js';
 import savedJobsRoutes from './routes/savedJobs.js';
+import companyProfileRoutes from './routes/companyProfile.js';
 
 // Load env vars
 dotenv.config();
@@ -36,6 +37,7 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/saved-jobs', savedJobsRoutes);
+app.use('/api/company-profile', companyProfileRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

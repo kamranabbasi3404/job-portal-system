@@ -78,7 +78,7 @@ const JobCard = ({ job, isSaved: initialSaved = false, onSaveToggle }) => {
     };
 
     return (
-        <div className="card group hover:border-primary-200 border border-transparent cursor-pointer relative">
+        <div className="card group hover:border-primary-200 border border-transparent cursor-pointer relative flex flex-col">
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start space-x-4">
                     <div className="w-14 h-14 bg-gradient-to-br from-primary-400 to-secondary-500 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -136,7 +136,7 @@ const JobCard = ({ job, isSaved: initialSaved = false, onSaveToggle }) => {
                 </div>
             )}
 
-            <div className="pt-4 border-t border-gray-100">
+            <div className="pt-4 border-t border-gray-100 mt-auto">
                 <Link
                     to={`/jobs/${job._id}`}
                     className="btn-primary w-full text-center"
