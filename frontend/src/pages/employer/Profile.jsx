@@ -30,12 +30,17 @@ const EmployerProfile = () => {
 
     const handleSave = async (section) => {
         try {
+            console.log('Saving profile data:', formData); // Debug log
             const response = await api.put('/api/company-profile/me', formData);
+            console.log('Save response:', response.data); // Debug log
             setProfile(response.data);
+            setFormData(response.data);
             setEditing({ ...editing, [section]: false });
+            alert('Profile updated successfully!');
         } catch (error) {
             console.error('Error saving profile:', error);
-            alert('Failed to save changes');
+            console.error('Error response:', error.response?.data); // Debug log
+            alert(error.response?.data?.message || 'Failed to save changes. Please try again.');
         }
     };
 

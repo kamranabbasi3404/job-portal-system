@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/common/Navbar';
@@ -29,8 +29,20 @@ import ManageJobs from './pages/employer/ManageJobs';
 import EmployerApplications from './pages/employer/Applications';
 import EmployerProfile from './pages/employer/Profile';
 
+// Admin Pages
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminUsers from './pages/admin/Users';
+import AdminJobs from './pages/admin/Jobs';
+import AdminApplications from './pages/admin/Applications';
+import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+
 function AppContent() {
   const { user, logout, loading } = useAuth();
+  const location = useLocation();
+
+  // Check if current route is an admin route
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   if (loading) {
     return <Loader fullScreen />;
@@ -38,7 +50,7 @@ function AppContent() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar user={user} onLogout={logout} />
+      {!isAdminRoute && <Navbar user={user} onLogout={logout} />}
       <main className="flex-grow">
         <Routes>
           {/* Public Routes */}
@@ -132,9 +144,44 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboard />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminProtectedRoute>
+                <AdminUsers />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/jobs"
+            element={
+              <AdminProtectedRoute>
+                <AdminJobs />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/applications"
+            element={
+              <AdminProtectedRoute>
+                <AdminApplications />
+              </AdminProtectedRoute>
+            }
+          />
         </Routes>
       </main>
-      <Footer />
+      {!isAdminRoute && <Footer />}
     </div>
   );
 }

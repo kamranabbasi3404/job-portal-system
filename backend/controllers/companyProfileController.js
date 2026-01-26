@@ -1,4 +1,5 @@
 import CompanyProfile from '../models/CompanyProfile.js';
+import User from '../models/User.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -26,6 +27,10 @@ export const getMyCompanyProfile = async (req, res) => {
 // @access  Private/Employer
 export const updateMyCompanyProfile = async (req, res) => {
     try {
+        console.log('=== UPDATE COMPANY PROFILE ===');
+        console.log('User ID:', req.user.id);
+        console.log('Request body:', req.body);
+
         const {
             companyName,
             about,
@@ -48,8 +53,10 @@ export const updateMyCompanyProfile = async (req, res) => {
         } = req.body;
 
         let profile = await CompanyProfile.findOne({ user: req.user.id });
+        console.log('Existing profile found:', !!profile);
 
         if (!profile) {
+            console.log('Creating new profile...');
             profile = await CompanyProfile.create({
                 user: req.user.id,
                 companyName,
@@ -71,7 +78,12 @@ export const updateMyCompanyProfile = async (req, res) => {
                 benefits,
                 culture
             });
+            console.log('New profile created:', profile);
         } else {
+            console.log('Updating existing profile...');
+            console.log('Old company name:', profile.companyName);
+            console.log('New company name:', companyName);
+
             profile.companyName = companyName !== undefined ? companyName : profile.companyName;
             profile.about = about !== undefined ? about : profile.about;
             profile.industry = industry !== undefined ? industry : profile.industry;
@@ -92,11 +104,22 @@ export const updateMyCompanyProfile = async (req, res) => {
             profile.culture = culture !== undefined ? culture : profile.culture;
 
             await profile.save();
+            console.log('Profile saved. Updated company name:', profile.companyName);
+
+            // Sync User.name with companyName for employers
+            if (companyName !== undefined && companyName.trim() !== '') {
+                await User.findByIdAndUpdate(req.user.id, { name: companyName });
+                console.log('User name synced to:', companyName);
+            }
         }
 
         profile = await CompanyProfile.findById(profile._id).populate('user', 'name email phone');
+        console.log('Final profile to return:', profile);
+        console.log('=== END UPDATE ===');
+
         res.json(profile);
     } catch (error) {
+        console.error('Error updating company profile:', error);
         res.status(500).json({ message: error.message });
     }
 };
