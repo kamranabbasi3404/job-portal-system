@@ -18,6 +18,7 @@ const AdminLayout = ({ children }) => {
         { path: '/admin/users', icon: '👥', label: 'Users' },
         { path: '/admin/jobs', icon: '💼', label: 'Jobs' },
         { path: '/admin/applications', icon: '📝', label: 'Applications' },
+        { path: '/admin/company-requests', icon: '🏢', label: 'Company Requests' },
     ];
 
     return (
@@ -43,8 +44,8 @@ const AdminLayout = ({ children }) => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${location.pathname === item.path
-                                        ? 'bg-purple-600 text-white'
-                                        : 'text-gray-300 hover:bg-gray-800'
+                                    ? 'bg-purple-600 text-white'
+                                    : 'text-gray-300 hover:bg-gray-800'
                                     }`}
                             >
                                 <span className="text-xl">{item.icon}</span>

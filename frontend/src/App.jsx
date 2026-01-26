@@ -35,6 +35,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
 import AdminJobs from './pages/admin/Jobs';
 import AdminApplications from './pages/admin/Applications';
+import AdminCompanyRequests from './pages/admin/CompanyRequests';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 
 function AppContent() {
@@ -176,6 +177,14 @@ function AppContent() {
             element={
               <AdminProtectedRoute>
                 <AdminApplications />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/company-requests"
+            element={
+              <AdminProtectedRoute>
+                <AdminCompanyRequests />
               </AdminProtectedRoute>
             }
           />

@@ -86,3 +86,24 @@ export const getAllApplications = async (params) => {
     const response = await adminAxios.get('/api/admin/applications', { params });
     return response.data;
 };
+
+// Company Signup Requests management
+export const getPendingCompanyRequests = async (params) => {
+    const response = await adminAxios.get('/api/pending-company/admin', { params });
+    return response.data;
+};
+
+export const getCompanyRequestById = async (id) => {
+    const response = await adminAxios.get(`/api/pending-company/admin/${id}`);
+    return response.data;
+};
+
+export const approveCompanyRequest = async (id) => {
+    const response = await adminAxios.put(`/api/pending-company/admin/${id}/approve`);
+    return response.data;
+};
+
+export const declineCompanyRequest = async (id, reason) => {
+    const response = await adminAxios.put(`/api/pending-company/admin/${id}/decline`, { reason });
+    return response.data;
+};
