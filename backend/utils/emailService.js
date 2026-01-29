@@ -249,4 +249,41 @@ export const sendInterviewScheduledEmail = async (applicantEmail, applicantName,
     });
 };
 
-export default { sendEmail, sendApprovalEmail, sendRejectionEmail, sendShortlistEmail, sendInterviewScheduledEmail };
+// Send password reset OTP email
+export const sendPasswordResetOTP = async (email, name, otp) => {
+    return sendEmail({
+        to: email,
+        subject: '🔐 Password Reset OTP - Job Portal',
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0;">
+                    <h1 style="color: white; margin: 0; text-align: center;">Password Reset</h1>
+                </div>
+                <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+                    <h2 style="color: #333;">Hi ${name}!</h2>
+                    <p style="color: #666; line-height: 1.6;">
+                        We received a request to reset your password. Use the OTP code below to proceed:
+                    </p>
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 10px; margin: 25px 0; text-align: center;">
+                        <p style="color: rgba(255,255,255,0.8); margin: 0 0 10px 0; font-size: 14px;">Your OTP Code</p>
+                        <h1 style="color: white; margin: 0; font-size: 42px; letter-spacing: 8px; font-family: 'Courier New', monospace;">${otp}</h1>
+                    </div>
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                        <p style="color: #856404; margin: 0;">
+                            ⏰ <strong>This OTP will expire in 10 minutes.</strong>
+                        </p>
+                    </div>
+                    <p style="color: #666; line-height: 1.6;">
+                        If you didn't request a password reset, please ignore this email or contact support if you have concerns.
+                    </p>
+                    <p style="color: #999; font-size: 12px; text-align: center; margin-top: 30px;">
+                        For security reasons, never share your OTP with anyone.
+                    </p>
+                </div>
+            </div>
+        `,
+        text: `Hi ${name}! Your password reset OTP is: ${otp}. This code will expire in 10 minutes. If you didn't request this, please ignore this email.`
+    });
+};
+
+export default { sendEmail, sendApprovalEmail, sendRejectionEmail, sendShortlistEmail, sendInterviewScheduledEmail, sendPasswordResetOTP };
