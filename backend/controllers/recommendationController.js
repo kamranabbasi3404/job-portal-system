@@ -1,6 +1,7 @@
 import Job from '../models/Job.js';
 import Profile from '../models/Profile.js';
 import User from '../models/User.js';
+import CompanyProfile from '../models/CompanyProfile.js';
 import { getRecommendations } from '../utils/recommendationEngine.js';
 import { parseResume } from '../utils/resumeParser.js';
 
@@ -55,9 +56,29 @@ export const getJobRecommendations = async (req, res) => {
             });
         }
 
-        // Get AI recommendations with resume text
+        // Get current company names from CompanyProfile for each job's employer
+        const employerIds = [...new Set(jobs.map(job => job.employer?.toString()).filter(Boolean))];
+        const companyProfiles = await CompanyProfile.find({ user: { $in: employerIds } })
+            .select('user companyName')
+            .lean();
+
+        // Create a map of employer ID to current company name
+        const companyNameMap = {};
+        companyProfiles.forEach(cp => {
+            if (cp.user && cp.companyName) {
+                companyNameMap[cp.user.toString()] = cp.companyName;
+            }
+        });
+
+        // Update jobs with current company names
+        const jobsWithCurrentCompanyNames = jobs.map(job => ({
+            ...job,
+            company: companyNameMap[job.employer?.toString()] || job.company // Use current name if available, else fallback to stored name
+        }));
+
+        // Get AI recommendations with resume text (using jobs with current company names)
         const limit = parseInt(req.query.limit) || 5;
-        const recommendations = getRecommendations(profile, user, jobs, limit, resumeText);
+        const recommendations = getRecommendations(profile, user, jobsWithCurrentCompanyNames, limit, resumeText);
 
         // Format response
         const formattedRecommendations = recommendations.map(rec => ({
