@@ -11,6 +11,7 @@ import savedJobsRoutes from './routes/savedJobs.js';
 import companyProfileRoutes from './routes/companyProfile.js';
 import adminRoutes from './routes/admin.js';
 import pendingCompanyRoutes from './routes/pendingCompany.js';
+import recommendationRoutes from './routes/recommendations.js';
 
 // Load env vars
 dotenv.config();
@@ -42,6 +43,7 @@ app.use('/api/saved-jobs', savedJobsRoutes);
 app.use('/api/company-profile', companyProfileRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/pending-company', pendingCompanyRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

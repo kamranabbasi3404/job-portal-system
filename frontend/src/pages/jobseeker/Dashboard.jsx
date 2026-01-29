@@ -4,6 +4,7 @@ import { Briefcase, FileText, User, TrendingUp, Clock, CheckCircle } from 'lucid
 import { useAuth } from '../../context/AuthContext';
 import JobCard from '../../components/common/JobCard';
 import Loader from '../../components/common/Loader';
+import RecommendedJobs from '../../components/jobseeker/RecommendedJobs';
 import api from '../../services/api';
 
 const JobSeekerDashboard = () => {
@@ -158,20 +159,9 @@ const JobSeekerDashboard = () => {
                     </div>
                 </div>
 
-                {/* Recommended Jobs */}
+                {/* AI-Powered Job Recommendations */}
                 <div className="mt-8">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Recommended Jobs</h2>
-                        <Link to="/jobs" className="text-primary-600 hover:text-primary-700 font-medium">
-                            View All Jobs
-                        </Link>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {recommendedJobs.map(job => (
-                            <JobCard key={job._id} job={job} />
-                        ))}
-                    </div>
+                    <RecommendedJobs />
                 </div>
             </div>
         </div>
