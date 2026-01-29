@@ -2,6 +2,7 @@ import Job from '../models/Job.js';
 import Profile from '../models/Profile.js';
 import User from '../models/User.js';
 import { getRecommendations } from '../utils/recommendationEngine.js';
+import { parseResume } from '../utils/resumeParser.js';
 
 /**
  * @desc    Get AI-powered job recommendations for the logged-in user
@@ -25,12 +26,21 @@ export const getJobRecommendations = async (req, res) => {
         const hasSkills = profile.skills && profile.skills.length > 0;
         const hasExperience = profile.experience && profile.experience.length > 0;
         const hasAbout = profile.about && profile.about.trim().length > 0;
+        const hasResume = profile.resume && profile.resume.trim().length > 0;
 
-        if (!hasSkills && !hasExperience && !hasAbout) {
+        if (!hasSkills && !hasExperience && !hasAbout && !hasResume) {
             return res.status(200).json({
-                message: 'Add skills, experience, or about section to get personalized recommendations.',
+                message: 'Add skills, experience, about section, or upload a resume to get personalized recommendations.',
                 recommendations: []
             });
+        }
+
+        // Parse resume if available
+        let resumeText = '';
+        if (hasResume) {
+            console.log('Parsing resume:', profile.resume);
+            resumeText = await parseResume(profile.resume);
+            console.log('Resume parsed, extracted text length:', resumeText.length);
         }
 
         // Get all active jobs
@@ -45,9 +55,9 @@ export const getJobRecommendations = async (req, res) => {
             });
         }
 
-        // Get AI recommendations
+        // Get AI recommendations with resume text
         const limit = parseInt(req.query.limit) || 5;
-        const recommendations = getRecommendations(profile, user, jobs, limit);
+        const recommendations = getRecommendations(profile, user, jobs, limit, resumeText);
 
         // Format response
         const formattedRecommendations = recommendations.map(rec => ({

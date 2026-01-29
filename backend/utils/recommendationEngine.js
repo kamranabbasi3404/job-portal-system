@@ -11,9 +11,19 @@ const stemmer = natural.PorterStemmer;
 
 /**
  * Extract searchable text from a job seeker's profile
+ * @param {Object} profile - The user's profile
+ * @param {Object} user - The user object
+ * @param {string} resumeText - Optional parsed resume text
  */
-export const extractProfileText = (profile, user) => {
+export const extractProfileText = (profile, user, resumeText = '') => {
     const textParts = [];
+
+    // Add parsed resume text (high priority - this contains all CV data)
+    if (resumeText && resumeText.trim()) {
+        // Repeat resume text for emphasis since it's the primary source
+        textParts.push(resumeText.toLowerCase());
+        textParts.push(resumeText.toLowerCase());
+    }
 
     // Add skills (high weight - repeat for emphasis)
     if (profile?.skills && Array.isArray(profile.skills)) {
@@ -201,22 +211,82 @@ const cosineSimilarity = (tfidf, doc1Index, doc2Index) => {
 };
 
 /**
- * Calculate skill match percentage
+ * Common tech skills to look for in resume
  */
-const calculateSkillMatch = (profileSkills, jobSkills) => {
-    if (!profileSkills || !jobSkills || profileSkills.length === 0 || jobSkills.length === 0) {
+const TECH_SKILLS = [
+    'javascript', 'typescript', 'python', 'java', 'c++', 'c#', 'ruby', 'php', 'swift', 'kotlin', 'go', 'rust',
+    'react', 'reactjs', 'angular', 'vue', 'vuejs', 'svelte', 'node', 'nodejs', 'express', 'django', 'flask', 'spring', 'laravel', 'rails',
+    'html', 'html5', 'css', 'css3', 'sass', 'scss', 'less', 'tailwind', 'tailwindcss', 'bootstrap', 'jquery', 'material-ui', 'mui',
+    'mongodb', 'mysql', 'postgresql', 'postgres', 'redis', 'elasticsearch', 'firebase', 'sqlite', 'oracle', 'sql server', 'mariadb',
+    'aws', 'amazon web services', 'azure', 'gcp', 'google cloud', 'docker', 'kubernetes', 'k8s', 'jenkins', 'git', 'github', 'gitlab', 'bitbucket',
+    'machine learning', 'ml', 'deep learning', 'dl', 'artificial intelligence', 'ai', 'data science', 'data analysis', 'nlp', 'computer vision',
+    'agile', 'scrum', 'jira', 'figma', 'sketch', 'adobe xd', 'photoshop', 'illustrator',
+    'rest', 'restful', 'rest api', 'graphql', 'microservices', 'devops', 'ci/cd', 'cicd',
+    'linux', 'unix', 'windows', 'macos', 'android', 'ios', 'mobile', 'flutter', 'react native',
+    'sql', 'nosql', 'orm', 'api', 'frontend', 'front-end', 'backend', 'back-end', 'fullstack', 'full-stack', 'full stack',
+    'nextjs', 'next.js', 'nuxt', 'nuxtjs', 'gatsby', 'webpack', 'vite', 'babel', 'npm', 'yarn', 'pnpm',
+    'tensorflow', 'pytorch', 'keras', 'pandas', 'numpy', 'scikit-learn', 'scipy', 'matplotlib',
+    'testing', 'jest', 'mocha', 'cypress', 'selenium', 'unit testing', 'integration testing',
+    'communication', 'leadership', 'teamwork', 'problem solving', 'analytical', 'project management',
+    'excel', 'powerpoint', 'word', 'office', 'sap', 'salesforce', 'crm',
+    'blockchain', 'ethereum', 'solidity', 'web3', 'smart contracts',
+    'security', 'cybersecurity', 'penetration testing', 'network security'
+];
+
+/**
+ * Extract skills from resume text
+ */
+const extractSkillsFromResume = (resumeText) => {
+    if (!resumeText || typeof resumeText !== 'string') {
+        return [];
+    }
+
+    const text = resumeText.toLowerCase();
+    const foundSkills = [];
+
+    TECH_SKILLS.forEach(skill => {
+        // Create pattern to match the skill as a word
+        const pattern = new RegExp(`\\b${skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        if (pattern.test(text)) {
+            foundSkills.push(skill);
+        }
+    });
+
+    return [...new Set(foundSkills)]; // Remove duplicates
+};
+
+/**
+ * Calculate skill match percentage (enhanced to use resume skills)
+ */
+const calculateSkillMatch = (profileSkills, jobSkills, resumeText = '') => {
+    if (!jobSkills || jobSkills.length === 0) {
         return 0;
     }
 
-    const profileSkillNames = profileSkills.map(s =>
-        (typeof s === 'string' ? s : s.name || '').toLowerCase()
-    );
+    // Get skills from profile
+    let allUserSkills = [];
+
+    if (profileSkills && Array.isArray(profileSkills)) {
+        allUserSkills = profileSkills.map(s =>
+            (typeof s === 'string' ? s : s.name || '').toLowerCase()
+        ).filter(s => s);
+    }
+
+    // Extract skills from resume text
+    if (resumeText) {
+        const resumeSkills = extractSkillsFromResume(resumeText);
+        allUserSkills = [...new Set([...allUserSkills, ...resumeSkills])];
+    }
+
+    if (allUserSkills.length === 0) {
+        return 0;
+    }
 
     const jobSkillsLower = jobSkills.map(s => s.toLowerCase());
 
     let matchCount = 0;
     jobSkillsLower.forEach(jobSkill => {
-        if (profileSkillNames.some(ps =>
+        if (allUserSkills.some(ps =>
             ps.includes(jobSkill) || jobSkill.includes(ps)
         )) {
             matchCount++;
@@ -229,7 +299,7 @@ const calculateSkillMatch = (profileSkills, jobSkills) => {
 /**
  * Generate match reason based on analysis
  */
-const generateReason = (job, profile, skillMatch, experienceMatch, tfidfScore) => {
+const generateReason = (job, profile, skillMatch, experienceMatch, tfidfScore, resumeText = '') => {
     const reasons = [];
 
     // Skill matching reason
@@ -241,16 +311,28 @@ const generateReason = (job, profile, skillMatch, experienceMatch, tfidfScore) =
         reasons.push('Some relevant skills');
     }
 
-    // Find specific matching skills
-    if (profile?.skills && job.skills) {
-        const profileSkillNames = profile.skills.map(s =>
+    // Get all user skills (profile + resume)
+    let allUserSkills = [];
+
+    if (profile?.skills && Array.isArray(profile.skills)) {
+        allUserSkills = profile.skills.map(s =>
             (typeof s === 'string' ? s : s.name || '').toLowerCase()
-        );
+        ).filter(s => s);
+    }
+
+    // Add skills from resume
+    if (resumeText) {
+        const resumeSkills = extractSkillsFromResume(resumeText);
+        allUserSkills = [...new Set([...allUserSkills, ...resumeSkills])];
+    }
+
+    // Find specific matching skills from both profile and resume
+    if (job.skills && job.skills.length > 0 && allUserSkills.length > 0) {
         const matchingSkills = job.skills.filter(js =>
-            profileSkillNames.some(ps => ps.includes(js.toLowerCase()) || js.toLowerCase().includes(ps))
+            allUserSkills.some(ps => ps.includes(js.toLowerCase()) || js.toLowerCase().includes(ps))
         );
         if (matchingSkills.length > 0) {
-            reasons.push(`Matches: ${matchingSkills.slice(0, 3).join(', ')}`);
+            reasons.push(`Matches: ${matchingSkills.slice(0, 4).join(', ')}`);
         }
     }
 
@@ -264,22 +346,27 @@ const generateReason = (job, profile, skillMatch, experienceMatch, tfidfScore) =
         reasons.push(`${job.type} position`);
     }
 
-    return reasons.length > 0 ? reasons.join('. ') : 'Based on profile analysis';
+    return reasons.length > 0 ? reasons.join('. ') : 'Based on resume and profile analysis';
 };
 
 /**
  * Main recommendation function
  * Returns top N jobs ranked by relevance
+ * @param {Object} profile - User's profile
+ * @param {Object} user - User object
+ * @param {Array} jobs - Array of job listings
+ * @param {number} limit - Maximum recommendations to return
+ * @param {string} resumeText - Optional parsed resume text
  */
-export const getRecommendations = (profile, user, jobs, limit = 5) => {
+export const getRecommendations = (profile, user, jobs, limit = 5, resumeText = '') => {
     if (!jobs || jobs.length === 0) {
         return [];
     }
 
     const tfidf = new TfIdf();
 
-    // Extract profile text and add as first document
-    const profileText = extractProfileText(profile, user);
+    // Extract profile text (including resume if available) and add as first document
+    const profileText = extractProfileText(profile, user, resumeText);
     tfidf.addDocument(profileText);
 
     // Add all job texts
@@ -296,8 +383,8 @@ export const getRecommendations = (profile, user, jobs, limit = 5) => {
         // TF-IDF similarity score (profile is doc 0, jobs start at doc 1)
         const tfidfScore = cosineSimilarity(tfidf, 0, index + 1);
 
-        // Skill match score
-        const skillMatch = calculateSkillMatch(profile?.skills, job.skills);
+        // Skill match score (now includes resume-extracted skills)
+        const skillMatch = calculateSkillMatch(profile?.skills, job.skills, resumeText);
 
         // Experience compatibility
         const requiredExp = parseExperienceRequirement(job.experience);
@@ -314,8 +401,8 @@ export const getRecommendations = (profile, user, jobs, limit = 5) => {
         // Normalize to 0-100
         combinedScore = Math.max(0, Math.min(100, combinedScore));
 
-        // Generate human-readable reason
-        const reason = generateReason(job, profile, skillMatch, experienceMatch, tfidfScore);
+        // Generate human-readable reason (now includes resume skills)
+        const reason = generateReason(job, profile, skillMatch, experienceMatch, tfidfScore, resumeText);
 
         return {
             job_id: job._id,
