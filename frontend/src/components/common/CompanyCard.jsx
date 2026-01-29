@@ -46,7 +46,7 @@ const CompanyCard = ({ company }) => {
                         </div>
                     </div>
                     <Link
-                        to={`/jobs?company=${company._id}`}
+                        to={`/companies/${company._id}/jobs`}
                         className="btn-primary text-sm"
                     >
                         View Jobs

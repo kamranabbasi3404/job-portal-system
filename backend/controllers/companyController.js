@@ -65,7 +65,7 @@ export const getCompanies = async (req, res) => {
 export const getCompanyById = async (req, res) => {
     try {
         const company = await User.findById(req.params.id)
-            .select('name email phone createdAt');
+            .select('name email phone createdAt role');
 
         if (!company || company.role !== 'employer') {
             return res.status(404).json({ message: 'Company not found' });
@@ -74,7 +74,11 @@ export const getCompanyById = async (req, res) => {
         // Fetch company profile
         const profile = await CompanyProfile.findOne({ user: company._id });
 
-        // Get company's jobs
+        // Get job counts
+        const totalJobs = await Job.countDocuments({ employer: company._id });
+        const activeJobs = await Job.countDocuments({ employer: company._id, status: 'active' });
+
+        // Get company's active jobs
         const jobs = await Job.find({ employer: company._id, status: 'active' })
             .sort({ createdAt: -1 });
 
@@ -96,6 +100,8 @@ export const getCompanyById = async (req, res) => {
             vision: profile?.vision,
             culture: profile?.culture,
             benefits: profile?.benefits,
+            totalJobs,
+            activeJobs,
             jobs
         });
     } catch (error) {

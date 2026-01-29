@@ -14,6 +14,7 @@ import Register from './pages/auth/Register';
 import Jobs from './pages/Jobs';
 import JobDetails from './pages/JobDetails';
 import Companies from './pages/Companies';
+import CompanyJobs from './pages/CompanyJobs';
 
 // Job Seeker Pages
 import JobSeekerDashboard from './pages/jobseeker/Dashboard';
@@ -61,6 +62,7 @@ function AppContent() {
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/jobs/:id" element={<JobDetails />} />
           <Route path="/companies" element={<Companies />} />
+          <Route path="/companies/:id/jobs" element={<CompanyJobs />} />
 
           {/* Job Seeker Protected Routes */}
           <Route
