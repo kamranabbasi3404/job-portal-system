@@ -1,8 +1,29 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, Briefcase, Users, TrendingUp, ArrowRight, CheckCircle } from 'lucide-react';
 
 const Home = () => {
+    const navigate = useNavigate();
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [searchLocation, setSearchLocation] = useState('');
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+
+        // Build query string
+        const params = new URLSearchParams();
+        if (searchKeyword.trim()) {
+            params.append('search', searchKeyword.trim());
+        }
+        if (searchLocation.trim()) {
+            params.append('location', searchLocation.trim());
+        }
+
+        // Navigate to jobs page with search parameters
+        const queryString = params.toString();
+        navigate(`/jobs${queryString ? `?${queryString}` : ''}`);
+    };
+
     const features = [
         {
             icon: Search,
@@ -46,23 +67,30 @@ const Home = () => {
                             Connect with top employers and discover opportunities that match your skills and aspirations
                         </p>
 
-                        {/* Search Bar */}
-                        <div className="bg-white rounded-xl p-2 shadow-2xl max-w-3xl mx-auto flex flex-col sm:flex-row gap-2 animate-fade-in">
+                        {/* Search Bar - Now Functional */}
+                        <form onSubmit={handleSearch} className="bg-white rounded-xl p-2 shadow-2xl max-w-3xl mx-auto flex flex-col sm:flex-row gap-2 animate-fade-in">
                             <input
                                 type="text"
                                 placeholder="Job title, keywords..."
+                                value={searchKeyword}
+                                onChange={(e) => setSearchKeyword(e.target.value)}
                                 className="flex-1 px-4 py-3 rounded-lg text-gray-900 outline-none"
                             />
                             <input
                                 type="text"
                                 placeholder="Location"
+                                value={searchLocation}
+                                onChange={(e) => setSearchLocation(e.target.value)}
                                 className="flex-1 px-4 py-3 rounded-lg text-gray-900 outline-none"
                             />
-                            <button className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2">
+                            <button
+                                type="submit"
+                                className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2"
+                            >
                                 <Search className="w-5 h-5" />
                                 <span>Search Jobs</span>
                             </button>
-                        </div>
+                        </form>
 
                         <div className="mt-8 flex flex-wrap justify-center gap-4">
                             <Link to="/register" className="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors">

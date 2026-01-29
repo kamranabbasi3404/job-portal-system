@@ -1,6 +1,8 @@
 import Application from '../models/Application.js';
 import Job from '../models/Job.js';
 import User from '../models/User.js';
+import CompanyProfile from '../models/CompanyProfile.js';
+import { sendShortlistEmail, sendInterviewScheduledEmail } from '../utils/emailService.js';
 
 // @desc    Apply for a job
 // @route   POST /api/applications
@@ -38,8 +40,16 @@ export const applyForJob = async (req, res) => {
         await job.save();
 
         const populatedApplication = await Application.findById(application._id)
-            .populate('job', 'title company')
+            .populate('job', 'title company employer')
             .populate('jobSeeker', 'name email');
+
+        // Get current company name
+        if (populatedApplication.job?.employer) {
+            const companyProfile = await CompanyProfile.findOne({ user: populatedApplication.job.employer }).select('companyName');
+            if (companyProfile?.companyName) {
+                populatedApplication.job.company = companyProfile.companyName;
+            }
+        }
 
         res.status(201).json(populatedApplication);
     } catch (error) {
@@ -53,10 +63,39 @@ export const applyForJob = async (req, res) => {
 export const getMyApplications = async (req, res) => {
     try {
         const applications = await Application.find({ jobSeeker: req.user._id })
-            .populate('job', 'title company location type salary')
+            .populate('job', 'title company location type salary employer')
             .sort({ createdAt: -1 });
 
-        res.json(applications);
+        // Get current company names for all jobs
+        const employerIds = [...new Set(applications
+            .map(app => app.job?.employer?.toString())
+            .filter(Boolean))];
+
+        const companyProfiles = await CompanyProfile.find({ user: { $in: employerIds } })
+            .select('user companyName')
+            .lean();
+
+        // Create a map of employer ID to current company name
+        const companyNameMap = {};
+        companyProfiles.forEach(cp => {
+            if (cp.user && cp.companyName) {
+                companyNameMap[cp.user.toString()] = cp.companyName;
+            }
+        });
+
+        // Update applications with current company names
+        const updatedApplications = applications.map(app => {
+            const appObj = app.toObject();
+            if (appObj.job?.employer) {
+                const currentName = companyNameMap[appObj.job.employer.toString()];
+                if (currentName) {
+                    appObj.job.company = currentName;
+                }
+            }
+            return appObj;
+        });
+
+        res.json(updatedApplications);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -73,11 +112,25 @@ export const getEmployerApplications = async (req, res) => {
 
         // Get all applications for these jobs
         const applications = await Application.find({ job: { $in: jobIds } })
-            .populate('job', 'title company')
+            .populate('job', 'title company employer')
             .populate('jobSeeker', 'name email phone')
             .sort({ createdAt: -1 });
 
-        res.json(applications);
+        // Get current company name for employer
+        const companyProfile = await CompanyProfile.findOne({ user: req.user._id })
+            .select('companyName')
+            .lean();
+
+        // Update applications with current company name
+        const updatedApplications = applications.map(app => {
+            const appObj = app.toObject();
+            if (companyProfile?.companyName && appObj.job) {
+                appObj.job.company = companyProfile.companyName;
+            }
+            return appObj;
+        });
+
+        res.json(updatedApplications);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -156,8 +209,24 @@ export const shortlistApplication = async (req, res) => {
         await application.save();
 
         const updatedApplication = await Application.findById(application._id)
-            .populate('job', 'title company')
+            .populate('job', 'title company employer')
             .populate('jobSeeker', 'name email phone');
+
+        // Get current company name and send email notification
+        try {
+            const companyProfile = await CompanyProfile.findOne({ user: req.user._id }).select('companyName');
+            const companyName = companyProfile?.companyName || updatedApplication.job.company;
+            const applicantName = updatedApplication.jobSeeker.name;
+            const applicantEmail = updatedApplication.jobSeeker.email;
+            const jobTitle = updatedApplication.job.title;
+
+            // Send shortlist notification email
+            await sendShortlistEmail(applicantEmail, applicantName, jobTitle, companyName);
+            console.log('📧 Shortlist email sent to:', applicantEmail);
+        } catch (emailError) {
+            console.error('Failed to send shortlist email:', emailError.message);
+            // Don't fail the request if email fails
+        }
 
         res.json(updatedApplication);
     } catch (error) {
@@ -211,8 +280,29 @@ export const scheduleInterview = async (req, res) => {
         await application.save();
 
         const updatedApplication = await Application.findById(application._id)
-            .populate('job', 'title company')
+            .populate('job', 'title company employer')
             .populate('jobSeeker', 'name email phone');
+
+        // Get current company name and send email notification
+        try {
+            const companyProfile = await CompanyProfile.findOne({ user: req.user._id }).select('companyName');
+            const companyName = companyProfile?.companyName || updatedApplication.job.company;
+            const applicantName = updatedApplication.jobSeeker.name;
+            const applicantEmail = updatedApplication.jobSeeker.email;
+            const jobTitle = updatedApplication.job.title;
+
+            // Send interview scheduled notification email
+            await sendInterviewScheduledEmail(applicantEmail, applicantName, jobTitle, companyName, {
+                type,
+                dateTime,
+                location,
+                meetingLink
+            });
+            console.log('📧 Interview scheduled email sent to:', applicantEmail);
+        } catch (emailError) {
+            console.error('Failed to send interview email:', emailError.message);
+            // Don't fail the request if email fails
+        }
 
         res.json(updatedApplication);
     } catch (error) {

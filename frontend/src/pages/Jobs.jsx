@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, MapPin, Briefcase, Filter } from 'lucide-react';
 import JobCard from '../components/common/JobCard';
 import Loader from '../components/common/Loader';
 import api from '../services/api';
 
 const Jobs = () => {
+    const [searchParams] = useSearchParams();
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    // Initialize filters from URL query parameters
     const [filters, setFilters] = useState({
-        search: '',
-        location: '',
-        type: '',
-        category: ''
+        search: searchParams.get('search') || '',
+        location: searchParams.get('location') || '',
+        type: searchParams.get('type') || '',
+        category: searchParams.get('category') || ''
     });
 
     useEffect(() => {
