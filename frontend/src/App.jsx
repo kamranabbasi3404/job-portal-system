@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -39,6 +39,14 @@ import AdminJobs from './pages/admin/Jobs';
 import AdminApplications from './pages/admin/Applications';
 import AdminCompanyRequests from './pages/admin/CompanyRequests';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 function AppContent() {
   const { user, logout, loading } = useAuth();
@@ -204,6 +212,7 @@ function App() {
     <GoogleOAuthProvider clientId="9724369519-30a5ou6ubkfui1im63k6l4o9u742iopt.apps.googleusercontent.com">
       <AuthProvider>
         <Router>
+          <ScrollToTop />
           <AppContent />
         </Router>
       </AuthProvider>
