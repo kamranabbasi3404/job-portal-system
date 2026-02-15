@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Briefcase, FileText, User, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { Briefcase, FileText, User, Clock, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import JobCard from '../../components/common/JobCard';
 import Loader from '../../components/common/Loader';
@@ -11,8 +11,7 @@ const JobSeekerDashboard = () => {
     const { user } = useAuth();
     const [stats, setStats] = useState({
         applications: 0,
-        saved: 0,
-        profileViews: 0
+        saved: 0
     });
     const [recentApplications, setRecentApplications] = useState([]);
     const [recommendedJobs, setRecommendedJobs] = useState([]);
@@ -36,8 +35,7 @@ const JobSeekerDashboard = () => {
             setRecommendedJobs(jobsRes.data.slice(0, 3));
             setStats({
                 applications: applicationsRes.data.length,
-                saved: savedJobsRes.data.length,
-                profileViews: 0
+                saved: savedJobsRes.data.length
             });
         } catch (error) {
             console.error('Error fetching dashboard data:', error);
@@ -60,13 +58,6 @@ const JobSeekerDashboard = () => {
             value: stats.saved,
             color: 'bg-purple-100 text-purple-600',
             link: '/jobseeker/saved-jobs'
-        },
-        {
-            icon: TrendingUp,
-            label: 'Profile Views',
-            value: stats.profileViews,
-            color: 'bg-green-100 text-green-600',
-            link: '/jobseeker/profile'
         }
     ];
 
@@ -90,7 +81,7 @@ const JobSeekerDashboard = () => {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     {statCards.map((stat, index) => {
                         const Icon = stat.icon;
                         return (

@@ -10,8 +10,7 @@ const EmployerDashboard = () => {
     const [stats, setStats] = useState({
         activeJobs: 0,
         totalApplications: 0,
-        newApplications: 0,
-        views: 0
+        newApplications: 0
     });
     const [recentJobs, setRecentJobs] = useState([]);
     const [recentApplications, setRecentApplications] = useState([]);
@@ -38,8 +37,7 @@ const EmployerDashboard = () => {
             setStats({
                 activeJobs: jobsRes.data.filter(j => j.status === 'active').length,
                 totalApplications: appsRes.data.length,
-                newApplications: appsRes.data.filter(a => a.status === 'pending').length,
-                views: 1234
+                newApplications: appsRes.data.filter(a => a.status === 'pending').length
             });
         } catch (error) {
             console.error('Error fetching dashboard data:', error);
@@ -70,13 +68,6 @@ const EmployerDashboard = () => {
             value: stats.newApplications,
             color: 'bg-green-100 text-green-600',
             link: '/employer/applications'
-        },
-        {
-            icon: Eye,
-            label: 'Profile Views',
-            value: stats.views,
-            color: 'bg-orange-100 text-orange-600',
-            link: '#'
         }
     ];
 
@@ -105,7 +96,7 @@ const EmployerDashboard = () => {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     {statCards.map((stat, index) => {
                         const Icon = stat.icon;
                         return (
