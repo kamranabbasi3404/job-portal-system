@@ -55,20 +55,18 @@ export const parseResume = async (resumePath) => {
 };
 
 /**
- * Parse PDF file using dynamic import to avoid pdf-parse test file issue
+ * Parse PDF file
  */
 const parsePDF = async (filePath) => {
     try {
-        // Use dynamic import to avoid pdf-parse test file requirement
         const { createRequire } = await import('module');
-        const require = createRequire(import.meta.url);
-        const pdfParse = require('pdf-parse');
+        const req = createRequire(import.meta.url);
+        const pdfParse = req('pdf-parse');
         const dataBuffer = fs.readFileSync(filePath);
         const data = await pdfParse(dataBuffer);
         return cleanText(data.text);
     } catch (error) {
         console.error('Error parsing PDF:', error.message);
-        // Return empty string on error - don't break recommendations
         return '';
     }
 };
