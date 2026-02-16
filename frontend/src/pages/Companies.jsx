@@ -42,7 +42,12 @@ const Companies = () => {
     };
 
     if (loading) {
-        return <Loader fullScreen />;
+        return (
+            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+                <Loader size="large" />
+                <p className="mt-4 text-gray-500 font-medium">Loading companies...</p>
+            </div>
+        );
     }
 
     return (
