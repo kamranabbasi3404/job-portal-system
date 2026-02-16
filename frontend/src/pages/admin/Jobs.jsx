@@ -123,57 +123,55 @@ const Jobs = () => {
                         </div>
                     ) : (
                         <>
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employer</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posted</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <table className="w-full table-auto divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Employer</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Location</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Posted</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {jobs.map((job) => (
+                                        <tr key={job._id} className="hover:bg-gray-50">
+                                            <td className="px-4 py-4 text-sm font-medium text-gray-900 max-w-[200px] truncate">{job.title}</td>
+                                            <td className="px-4 py-4 text-sm text-gray-500 max-w-[150px] truncate">
+                                                {job.currentCompanyName || job.company}
+                                            </td>
+                                            <td className="px-4 py-4 text-sm text-gray-500 hidden lg:table-cell truncate">{job.employer?.name}</td>
+                                            <td className="px-4 py-4 text-sm text-gray-500 hidden md:table-cell truncate">{job.location}</td>
+                                            <td className="px-4 py-4">
+                                                <select
+                                                    value={job.status}
+                                                    onChange={(e) => handleStatusChange(job._id, e.target.value)}
+                                                    className={`px-2 py-1 text-xs font-semibold rounded-full border-0 cursor-pointer ${job.status === 'active'
+                                                        ? 'bg-green-100 text-green-800'
+                                                        : 'bg-gray-100 text-gray-800'
+                                                        }`}
+                                                >
+                                                    <option value="active">Active</option>
+                                                    <option value="closed">Closed</option>
+                                                </select>
+                                            </td>
+                                            <td className="px-4 py-4 text-sm text-gray-500 hidden sm:table-cell">
+                                                {new Date(job.createdAt).toLocaleDateString()}
+                                            </td>
+                                            <td className="px-4 py-4 text-sm font-medium">
+                                                <button
+                                                    onClick={() => setDeleteConfirm(job)}
+                                                    className="text-red-600 hover:text-red-900 transition"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {jobs.map((job) => (
-                                            <tr key={job._id} className="hover:bg-gray-50">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{job.title}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {job.currentCompanyName || job.company}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{job.employer?.name}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{job.location}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <select
-                                                        value={job.status}
-                                                        onChange={(e) => handleStatusChange(job._id, e.target.value)}
-                                                        className={`px-2 py-1 text-xs font-semibold rounded-full border-0 ${job.status === 'active'
-                                                            ? 'bg-green-100 text-green-800'
-                                                            : 'bg-gray-100 text-gray-800'
-                                                            }`}
-                                                    >
-                                                        <option value="active">Active</option>
-                                                        <option value="closed">Closed</option>
-                                                    </select>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {new Date(job.createdAt).toLocaleDateString()}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <button
-                                                        onClick={() => setDeleteConfirm(job)}
-                                                        className="text-red-600 hover:text-red-900 transition"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    ))}
+                                </tbody>
+                            </table>
 
                             {/* Pagination */}
                             {pagination.totalPages > 1 && (

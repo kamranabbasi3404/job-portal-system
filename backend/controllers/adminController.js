@@ -1,6 +1,7 @@
 import User from '../models/User.js';
 import Job from '../models/Job.js';
 import Application from '../models/Application.js';
+import Profile from '../models/Profile.js';
 import CompanyProfile from '../models/CompanyProfile.js';
 import generateToken from '../utils/generateToken.js';
 
@@ -328,15 +329,68 @@ export const getAllApplications = async (req, res) => {
 
         const applications = await Application.find(query)
             .populate('jobSeeker', 'name email')
-            .populate('job', 'title company')
+            .populate('job', 'title company employer')
             .limit(limit * 1)
             .skip((page - 1) * limit)
             .sort({ createdAt: -1 });
 
         const count = await Application.countDocuments(query);
 
+        // Fetch current company names from CompanyProfile
+        const employerIds = [...new Set(applications
+            .map(app => app.job?.employer?.toString())
+            .filter(Boolean))];
+
+        const companyProfiles = await CompanyProfile.find({ user: { $in: employerIds } })
+            .select('user companyName')
+            .lean();
+
+        const companyNameMap = {};
+        companyProfiles.forEach(cp => {
+            if (cp.user && cp.companyName) {
+                companyNameMap[cp.user.toString()] = cp.companyName;
+            }
+        });
+
+        // For applications without resumeUrl, fetch from jobSeeker's profile
+        const jobSeekerIds = applications
+            .filter(app => !app.resumeUrl && app.jobSeeker?._id)
+            .map(app => app.jobSeeker._id);
+
+        let profileResumeMap = {};
+        if (jobSeekerIds.length > 0) {
+            const profiles = await Profile.find({ user: { $in: jobSeekerIds } })
+                .select('user resume')
+                .lean();
+            profiles.forEach(p => {
+                if (p.user && p.resume) {
+                    profileResumeMap[p.user.toString()] = p.resume;
+                }
+            });
+        }
+
+        // Enrich applications with current company name and resume
+        const enrichedApplications = applications.map(app => {
+            const appObj = app.toObject();
+            // Attach current company name
+            if (appObj.job?.employer) {
+                const currentName = companyNameMap[appObj.job.employer.toString()];
+                if (currentName) {
+                    appObj.job.company = currentName;
+                }
+            }
+            // Attach resume from profile if missing
+            if (!appObj.resumeUrl && appObj.jobSeeker?._id) {
+                const profileResume = profileResumeMap[appObj.jobSeeker._id.toString()];
+                if (profileResume) {
+                    appObj.resumeUrl = profileResume;
+                }
+            }
+            return appObj;
+        });
+
         res.json({
-            applications,
+            applications: enrichedApplications,
             totalPages: Math.ceil(count / limit),
             currentPage: page,
             total: count

@@ -1,6 +1,7 @@
 import Application from '../models/Application.js';
 import Job from '../models/Job.js';
 import User from '../models/User.js';
+import Profile from '../models/Profile.js';
 import CompanyProfile from '../models/CompanyProfile.js';
 import { sendShortlistEmail, sendInterviewScheduledEmail } from '../utils/emailService.js';
 
@@ -27,12 +28,21 @@ export const applyForJob = async (req, res) => {
             return res.status(400).json({ message: 'You have already applied for this job' });
         }
 
+        // Auto-fetch resume from profile if not provided
+        let finalResumeUrl = resumeUrl;
+        if (!finalResumeUrl) {
+            const profile = await Profile.findOne({ user: req.user._id }).select('resume');
+            if (profile?.resume) {
+                finalResumeUrl = profile.resume;
+            }
+        }
+
         // Create application
         const application = await Application.create({
             job: jobId,
             jobSeeker: req.user._id,
             coverLetter,
-            resumeUrl
+            resumeUrl: finalResumeUrl
         });
 
         // Update job applicants count

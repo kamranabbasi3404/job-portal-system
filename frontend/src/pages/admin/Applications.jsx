@@ -104,54 +104,52 @@ const Applications = () => {
                         </div>
                     ) : (
                         <>
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Seeker</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied Date</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resume</th>
+                            <table className="w-full table-auto divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Seeker</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Company</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Applied Date</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resume</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {applications.map((application) => (
+                                        <tr key={application._id} className="hover:bg-gray-50">
+                                            <td className="px-4 py-4">
+                                                <div className="text-sm font-medium text-gray-900 truncate max-w-[180px]">{application.jobSeeker?.name}</div>
+                                                <div className="text-xs text-gray-500 truncate max-w-[180px]">{application.jobSeeker?.email}</div>
+                                            </td>
+                                            <td className="px-4 py-4 text-sm text-gray-900 max-w-[160px] truncate">{application.job?.title}</td>
+                                            <td className="px-4 py-4 text-sm text-gray-500 hidden md:table-cell truncate">{application.job?.company}</td>
+                                            <td className="px-4 py-4">
+                                                <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(application.status)}`}>
+                                                    {application.status.replace('_', ' ')}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-4 text-sm text-gray-500 hidden sm:table-cell">
+                                                {new Date(application.appliedDate).toLocaleDateString()}
+                                            </td>
+                                            <td className="px-4 py-4 text-sm font-medium">
+                                                {application.resumeUrl ? (
+                                                    <a
+                                                        href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${application.resumeUrl}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-primary-600 hover:text-primary-800 transition"
+                                                    >
+                                                        View
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-gray-400">N/A</span>
+                                                )}
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {applications.map((application) => (
-                                            <tr key={application._id} className="hover:bg-gray-50">
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-sm font-medium text-gray-900">{application.jobSeeker?.name}</div>
-                                                    <div className="text-sm text-gray-500">{application.jobSeeker?.email}</div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{application.job?.title}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{application.job?.company}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(application.status)}`}>
-                                                        {application.status.replace('_', ' ')}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {new Date(application.appliedDate).toLocaleDateString()}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    {application.resumeUrl ? (
-                                                        <a
-                                                            href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${application.resumeUrl}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-purple-600 hover:text-purple-900 transition"
-                                                        >
-                                                            View
-                                                        </a>
-                                                    ) : (
-                                                        <span className="text-gray-400">N/A</span>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    ))}
+                                </tbody>
+                            </table>
 
                             {/* Pagination */}
                             {pagination.totalPages > 1 && (

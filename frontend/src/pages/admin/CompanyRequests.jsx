@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Clock, CheckCircle, XCircle, FileText, FileImage, X } from 'lucide-react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { getPendingCompanyRequests, approveCompanyRequest, declineCompanyRequest } from '../../services/adminApi';
 
@@ -104,7 +105,7 @@ const CompanyRequests = () => {
                                 <p className="text-gray-500 text-sm">Pending</p>
                                 <p className="text-3xl font-bold text-yellow-600">{stats.pending || 0}</p>
                             </div>
-                            <div className="text-4xl">⏳</div>
+                            <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center"><Clock className="w-5 h-5 text-yellow-600" /></div>
                         </div>
                     </div>
                     <div
@@ -116,7 +117,7 @@ const CompanyRequests = () => {
                                 <p className="text-gray-500 text-sm">Approved</p>
                                 <p className="text-3xl font-bold text-green-600">{stats.approved || 0}</p>
                             </div>
-                            <div className="text-4xl">✅</div>
+                            <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center"><CheckCircle className="w-5 h-5 text-green-600" /></div>
                         </div>
                     </div>
                     <div
@@ -128,7 +129,7 @@ const CompanyRequests = () => {
                                 <p className="text-gray-500 text-sm">Declined</p>
                                 <p className="text-3xl font-bold text-red-600">{stats.declined || 0}</p>
                             </div>
-                            <div className="text-4xl">❌</div>
+                            <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center"><XCircle className="w-5 h-5 text-red-600" /></div>
                         </div>
                     </div>
                 </div>
@@ -196,7 +197,7 @@ const CompanyRequests = () => {
                                                         onClick={() => setViewDocs(request)}
                                                         className="text-purple-600 hover:text-purple-800 text-sm font-medium"
                                                     >
-                                                        📄 {request.verificationDocuments?.length || 0} file(s)
+                                                        {request.verificationDocuments?.length || 0} file(s)
                                                     </button>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
@@ -275,7 +276,7 @@ const CompanyRequests = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                            {actionModal.action === 'approve' ? '✅ Approve Company' : '❌ Decline Request'}
+                            {actionModal.action === 'approve' ? 'Approve Company' : 'Decline Request'}
                         </h3>
 
                         <div className="mb-4 p-3 bg-gray-50 rounded-lg">
@@ -334,13 +335,13 @@ const CompanyRequests = () => {
                     <div className="bg-white rounded-xl p-6 max-w-lg w-full mx-4">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-semibold text-gray-900">
-                                📄 Verification Documents
+                                Verification Documents
                             </h3>
                             <button
                                 onClick={() => setViewDocs(null)}
                                 className="text-gray-500 hover:text-gray-700"
                             >
-                                ✕
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
@@ -350,9 +351,9 @@ const CompanyRequests = () => {
                             {viewDocs.verificationDocuments?.map((doc, index) => (
                                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                     <div className="flex items-center space-x-3">
-                                        <span className="text-2xl">
-                                            {doc.mimetype?.includes('pdf') ? '📕' : '🖼️'}
-                                        </span>
+                                        <div className="w-8 h-8 rounded bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                            {doc.mimetype?.includes('pdf') ? <FileText className="w-4 h-4 text-red-500" /> : <FileImage className="w-4 h-4 text-blue-500" />}
+                                        </div>
                                         <span className="text-sm text-gray-700 truncate max-w-[200px]">
                                             {doc.originalName}
                                         </span>
