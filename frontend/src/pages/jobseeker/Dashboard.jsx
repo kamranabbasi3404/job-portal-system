@@ -34,8 +34,8 @@ const JobSeekerDashboard = () => {
             setStats({
                 applications: applications.length,
                 saved: savedJobsRes.data.length,
-                pending: applications.filter(a => a.status?.toLowerCase() === 'pending').length,
-                accepted: applications.filter(a => a.status?.toLowerCase() === 'accepted').length
+                pending: applications.filter(a => ['pending', 'reviewing'].includes(a.status?.toLowerCase())).length,
+                accepted: applications.filter(a => a.status?.toLowerCase() === 'selected').length
             });
         } catch (error) {
             console.error('Error fetching dashboard data:', error);
