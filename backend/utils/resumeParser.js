@@ -60,7 +60,8 @@ export const parseResume = async (resumePath) => {
 const parsePDF = async (filePath) => {
     try {
         // Use dynamic import to avoid pdf-parse test file requirement
-        const pdfParse = (await import('pdf-parse')).default;
+        const pdfModule = await import('pdf-parse');
+        const pdfParse = pdfModule.default || pdfModule;
         const dataBuffer = fs.readFileSync(filePath);
         const data = await pdfParse(dataBuffer);
         return cleanText(data.text);

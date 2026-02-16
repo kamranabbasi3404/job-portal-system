@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Briefcase, User, LogOut, Home, FileText, Bell, Building2 } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
+import logo from '../../assets/logo.jpg';
 
 const Navbar = ({ user, onLogout }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -44,9 +45,7 @@ const Navbar = ({ user, onLogout }) => {
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
                     <Link to="/" className="flex items-center space-x-2">
-                        <div className="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
-                            <Briefcase className="w-6 h-6 text-white" />
-                        </div>
+                        <img src={logo} alt="HireFlow" className="w-10 h-10 rounded-lg object-cover" />
                         <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
                             HireFlow
                         </span>

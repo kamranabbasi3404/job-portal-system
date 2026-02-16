@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin } from 'lucide-react';
+import logo from '../../assets/logo.jpg';
 
 const Footer = () => {
     return (
@@ -9,7 +10,10 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {/* About Section */}
                     <div>
-                        <h3 className="text-white text-lg font-bold mb-4">HireFlow</h3>
+                        <div className="flex items-center space-x-2 mb-4">
+                            <img src={logo} alt="HireFlow" className="w-10 h-10 rounded-lg object-cover" />
+                            <h3 className="text-white text-lg font-bold">HireFlow</h3>
+                        </div>
                         <p className="text-sm text-gray-400 mb-4">
                             Connect talented professionals with amazing opportunities. Your dream job is just a click away.
                         </p>
